@@ -175,4 +175,4 @@ async def on_ready():
 
 
 # Run the bot, enter discord bot code below
-client.run('')
+# client.run('')
