@@ -36,6 +36,11 @@ eastern = timezone('US/Eastern')
 
 # Common date function to make sure everything is using the same format
 def get_date() -> str:
+    # If it's before 4am, use yesterday's date
+    current_time = datetime.now(eastern)
+    if current_time.hour < 4:
+        return str((current_time - timedelta(days=1)).date())
+
     return str(datetime.now(eastern).date())
 
 
@@ -67,6 +72,7 @@ def load_data():
 async def win(ctx):
     # Get the current user
     user = ctx.user
+        
     date_as_string = get_date()
 
     # Increment the wins counter
@@ -98,13 +104,6 @@ async def today(ctx: commands.Context):
     date_as_string = get_date()
     todays_wins = wins[date_as_string]
     todays_losses = losses[date_as_string]
-
-    # if it's before 4am, add in yesterday's wins and losses
-    current_time = datetime.now(eastern)
-    if current_time.hour < 4:
-        yesterday = str((current_time - timedelta(days=1)).date())
-        todays_wins += wins[yesterday]
-        todays_losses += losses[yesterday]
 
     # Send a message to the user with their wins and losses
     await ctx.response.send_message(f'You have won {todays_wins} games and lost {todays_losses} games today.')
