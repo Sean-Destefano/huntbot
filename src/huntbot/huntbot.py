@@ -4,6 +4,10 @@ import discord
 from discord.ext import commands
 from pytz import timezone
 import json
+import os
+
+
+USE_SAVED_DATA = os.environ.get("USE_SAVED_DATA", "DISABLED")
 
 
 # Initialize the bot
@@ -34,19 +38,29 @@ eastern = timezone('US/Eastern')
 def get_date() -> str:
     return str(datetime.now(eastern).date())
 
+
 # Save and load via static json file
 def save_data():
+    if USE_SAVED_DATA == "DISABLED":
+        return
+
     with open('/app/data/data.json', 'w') as f:
         json.dump({'wins': dict(wins), 'losses': dict(losses)}, f)
 
+
 def load_data():
+    if USE_SAVED_DATA == "DISABLED":
+        return
+
     try:
         with open('/app/data/data.json', 'r') as f:
             data = json.load(f)
-            wins.update(data['wins'])
-            losses.update(data['losses'])
     except FileNotFoundError:
         pass
+
+    wins.update(data['wins'])
+    losses.update(data['losses'])
+
 
 # Define a command to increment the wins counter
 @tree.command(name = "win", description="register a win")

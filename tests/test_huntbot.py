@@ -34,8 +34,8 @@ async def test_get_date(mock_ctx: AsyncMock):
     today = str(datetime.now().date())
 
     await date_stats.callback(mock_ctx, today)
-    send: AsyncMock = mock_ctx.send
-    send.assert_has_calls([
+    send_message: AsyncMock = mock_ctx.response.send_message
+    send_message.assert_has_calls([
         call(f'On {today}:\nWins: 2\nLosses: 2')
     ], any_order=True)
 
@@ -52,8 +52,8 @@ async def test_overall_stats(mock_ctx: AsyncMock):
         await loss.callback(mock_ctx)
 
     await overall.callback(mock_ctx)
-    send: AsyncMock = mock_ctx.send
-    send.assert_has_calls([
+    send_message: AsyncMock = mock_ctx.response.send_message
+    send_message.assert_has_calls([
         call(f'Overall wins: 5\nOverall losses: 3'),
     ], any_order=True)
 
@@ -71,8 +71,8 @@ async def test_reduce_stuff(mock_ctx: AsyncMock):
     await reduce_wins.callback(mock_ctx)
     await reduce_losses.callback(mock_ctx)
 
-    send: AsyncMock = mock_ctx.send
-    send.assert_has_calls([
+    send_message: AsyncMock = mock_ctx.response.send_message
+    send_message.assert_has_calls([
         call(f'Your wins has been reduced by 1.'),
     ], any_order=True)
 
@@ -101,8 +101,8 @@ async def test_today_includes_3am(mock_datetime: AsyncMock, mock_ctx: AsyncMock)
     await loss.callback(mock_ctx)
 
     await today.callback(mock_ctx)
-    send: AsyncMock = mock_ctx.send
-    send.assert_has_calls([
+    send_message: AsyncMock = mock_ctx.response.send_message
+    send_message.assert_has_calls([
         call(f'You have won 4 games and lost 7 games today.'),
     ], any_order=True)
 
@@ -127,7 +127,7 @@ async def test_today_does_not_include_4am(mock_datetime: AsyncMock, mock_ctx: As
     await loss.callback(mock_ctx)
 
     await today.callback(mock_ctx)
-    send: AsyncMock = mock_ctx.send
-    send.assert_has_calls([
+    send_message: AsyncMock = mock_ctx.response.send_message
+    send_message.assert_has_calls([
         call(f'You have won 1 games and lost 1 games today.'),
     ], any_order=True)
