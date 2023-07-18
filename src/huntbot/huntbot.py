@@ -213,4 +213,5 @@ async def on_ready():
 
 
 # Run the bot, enter discord bot code below
-# client.run('')
+if USE_SAVED_DATA != "DISABLED":
+    client.run('')
