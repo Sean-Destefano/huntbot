@@ -171,6 +171,31 @@ async def reduce_wins(ctx: commands.Context):
         await ctx.response.send_message(f'You have no wins to reduce.')
 
 
+@tree.command(name = "best_day", description="reduce wins by one")
+async def best_and_worst(ctx: commands.Context):
+    best_day = None
+    best_win_percent = 0
+    
+    worst_day = None
+    worst_win_percent = 100
+
+    for day, win_count in wins.items():
+        loss_count = losses.get(day, 0)
+        if (win_count + loss_count) < 5:
+            continue
+
+        win_percent = win_count / (win_count + loss_count)
+        if win_percent > best_win_percent:
+            best_day = day
+            best_win_percent = win_percent
+        
+        if win_percent < worst_win_percent:
+            worst_day = day
+            worst_win_percent = win_percent
+
+    await ctx.response.send_message(f'Best day was {best_day} at {wins[best_day]} - {losses[best_day]}\n Worst day was {worst_day} at {wins[worst_day]} - {losses[worst_day]}.\n(only counts day with <5 games played)')
+
+
 # Function to enable validation of win/loss counts during testing
 def get_values():
     return wins, losses

@@ -3,6 +3,7 @@ import pytest
 from unittest.mock import AsyncMock, call, patch
 
 from huntbot.huntbot import (
+    best_and_worst,
     date_stats,
     get_values,
     loss,
@@ -158,4 +159,44 @@ async def test_today_does_not_include_4am(mock_datetime: AsyncMock, mock_ctx: As
     send_message: AsyncMock = mock_ctx.response.send_message
     send_message.assert_has_calls([
         call(f'You have won 1 games and lost 1 games today.'),
+    ], any_order=True)
+
+
+@patch("huntbot.huntbot.datetime")
+async def test_best_and_worst(mock_datetime: AsyncMock, mock_ctx: AsyncMock):
+    # Populate the best day
+    best_day = datetime.fromtimestamp(1682438400)  # 4/25/2023 12:00 pm
+    mock_datetime.now.return_value = best_day
+    for _ in range(5):
+        await win.callback(mock_ctx)
+
+    await loss.callback(mock_ctx)
+
+    # Populate the worst day
+    worst_day = datetime.fromtimestamp(1682092800)  # 4/21/2023 12:00 pm
+    mock_datetime.now.return_value = worst_day
+    await win.callback(mock_ctx)
+
+    for _ in range(6):
+        await loss.callback(mock_ctx)
+
+    # Populate a 50/50 day that shouldn't be either
+    fifty_fifty_day = datetime.fromtimestamp(1682611200)  # 4/27/2023 12:00 pm
+    mock_datetime.now.return_value = fifty_fifty_day
+    for _ in range(3):
+        await win.callback(mock_ctx)
+    for _ in range(3):
+        await loss.callback(mock_ctx)
+
+    # Populate a day with <5 wins that should be ignored
+    ignored_day = datetime.fromtimestamp(1682784000)  # 4/29/2023 12:00 pm
+    mock_datetime.now.return_value = ignored_day
+    for _ in range(4):
+        await win.callback(mock_ctx)
+
+    await best_and_worst.callback(mock_ctx)
+
+    send_message: AsyncMock = mock_ctx.response.send_message
+    send_message.assert_has_calls([
+        call(f'Best day was 2023-04-25 at 5 - 1\n Worst day was 2023-04-21 at 1 - 6.\n(only counts day with <5 games played)'),
     ], any_order=True)
