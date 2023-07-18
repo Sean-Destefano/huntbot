@@ -74,7 +74,7 @@ async def win(ctx):
     save_data()
 
     # Send a message to the user
-    await ctx.response.send_message(f'Congratulations, {user.name}! You have won a game! Current record is {sum(wins.values())} - {sum(losses.values())}')
+    await ctx.response.send_message(f"Congratulations, {user.name}! You have won a game! Today's record is {wins[date_as_string]} - {losses[date_as_string]}")
 
 
 # Define a command to increment the losses counter
@@ -89,7 +89,7 @@ async def loss(ctx: commands.Context):
     save_data()
 
     # Send a message to the user
-    await ctx.response.send_message(f'Sorry, {user.name}! You have lost a game! Current record is {sum(wins.values())} - {sum(losses.values())}')
+    await ctx.response.send_message(f"Sorry, {user.name}! You have lost a game! Today's record is {wins[date_as_string]} - {losses[date_as_string]}")
 
 
 # Define a command to display the wins and losses

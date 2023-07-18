@@ -17,13 +17,41 @@ from huntbot.huntbot import (
 @pytest.fixture()
 def mock_ctx() -> AsyncMock:
     mock_ctx = AsyncMock()
-    mock_ctx.author.name = "is_a_me_mario"
+    mock_ctx.user.name = "is_a_me_mario"
     return mock_ctx
 
 
 @pytest.fixture(autouse=True)
 def reset():
     reset_wins_losses()
+
+
+async def test_win(mock_ctx: AsyncMock):
+    await win.callback(mock_ctx)
+
+    send_message: AsyncMock = mock_ctx.response.send_message
+    send_message.assert_has_calls([
+        call(f"Congratulations, is_a_me_mario! You have won a game! Today's record is 1 - 0")
+    ], any_order=True)
+
+    wins, losses = get_values()
+    today = str(datetime.now().date())
+    assert wins[today] == 1
+    assert losses[today] == 0
+
+
+async def test_loss(mock_ctx: AsyncMock):
+    await loss.callback(mock_ctx)
+
+    send_message: AsyncMock = mock_ctx.response.send_message
+    send_message.assert_has_calls([
+        call(f"Sorry, is_a_me_mario! You have lost a game! Today's record is 0 - 1")
+    ], any_order=True)
+
+    wins, losses = get_values()
+    today = str(datetime.now().date())
+    assert wins[today] == 0
+    assert losses[today] == 1
 
 
 async def test_get_date(mock_ctx: AsyncMock):
